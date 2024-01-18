@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yaml
+    kompose.version: 1.31.2 (a92241f79)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mc
+  name: mc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mc
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yaml
+        kompose.version: 1.31.2 (a92241f79)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/mc-server-infra-default: "true"
+        io.kompose.service: mc
+    spec:
+      containers:
+        - env:
+            - name: EULA
+              value: "TRUE"
+            - name: ONLINE_MODE
+              value: "FALSE"
+          image: itzg/minecraft-server
+          name: mc
+          ports:
+            - containerPort: 25565
+              hostPort: 25565
+              protocol: TCP
+          resources: {}
+          stdin: true
+          tty: true
+          volumeMounts:
+            - mountPath: /data
+              name: mc-claim0
+      restartPolicy: Always
+      volumes:
+        - name: mc-claim0
+          persistentVolumeClaim:
+            claimName: mc-claim0
+status: {}
